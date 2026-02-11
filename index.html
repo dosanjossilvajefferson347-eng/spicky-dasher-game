@@ -3,158 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spicky Dasher Ultra - Sistemas Jefferson</title>
+    <title>Geometry Dasher - Sistemas Jefferson</title>
     <style>
-        body { margin: 0; background-color: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { margin: 0; background-color: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: 'Arial Black', sans-serif; overflow: hidden; }
         
-        /* Container Principal */
-        #game_container { position: relative; width: 600px; height: 300px; border: 5px solid #333; border-radius: 15px; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        
-        /* Cenários */
-        .bg-pro { background: linear-gradient(#87CEEB 70%, #2ecc71 70%); }
-        .bg-classic { background-color: #e67e22; }
+        /* Container inspirado na sua imagem roxa */
+        #game_container { 
+            position: relative; 
+            width: 800px; 
+            height: 400px; 
+            background: #2e0094; /* Roxo escuro */
+            background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            border-bottom: 10px solid #1a0052;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
 
-        /* Boneco e Obstáculos */
-        #player2 { width: 40px; height: 40px; position: absolute; bottom: 30%; left: 50px; border-radius: 8px; border: 3px solid rgba(0,0,0,0.2); z-index: 100; transition: background 0.3s; }
-        .obstacle { width: 35px; height: 35px; background-color: #333; position: absolute; bottom: 30%; right: -50px; border-radius: 5px; }
+        /* O Boneco Verde da Imagem */
+        #player { 
+            width: 40px; 
+            height: 40px; 
+            background-color: #44fb1b; /* Verde limão */
+            border: 3px solid #ffffff; 
+            position: absolute; 
+            bottom: 0; 
+            left: 100px; 
+            z-index: 1000;
+            box-shadow: 0 0 15px #44fb1b;
+        }
 
-        /* UI de Status */
-        .hud { position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around; font-weight: bold; color: #333; z-index: 101; }
+        /* Obstáculos */
+        .obstacle { 
+            width: 40px; 
+            height: 40px; 
+            background: linear-gradient(to bottom, #000, #2e0094);
+            border: 2px solid #ffffff;
+            position: absolute; 
+            bottom: 0; 
+            right: -50px; 
+        }
 
-        /* Menu Inicial */
-        #menu_inicial { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-menu { background: #f39c12; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; width: 200px; }
-        .btn-menu:hover { background: #e67e22; }
+        /* Moedas Douradas */
+        .coin { 
+            width: 30px; 
+            height: 30px; 
+            background-color: #ffcc00; 
+            border: 3px solid #ff9900; 
+            border-radius: 50%; 
+            position: absolute; 
+            bottom: 120px; 
+            right: -50px; 
+            box-shadow: 0 0 10px #ffcc00;
+        }
 
-        /* Animações */
-        .jump { animation: jump 0.6s linear; }
+        /* UI */
+        .hud { position: absolute; top: 15px; left: 20px; font-size: 20px; z-index: 1001; display: flex; gap: 30px; }
+        .coin-icon { color: #ffcc00; }
+
+        /* Menu */
+        #menu { 
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.8); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
+        }
+        .btn { background: #44fb1b; color: #000; padding: 15px 40px; margin: 10px; border: none; font-size: 20px; cursor: pointer; border-radius: 5px; }
+
+        /* Pulo */
+        .jump-anim { animation: jump 0.6s cubic-bezier(0.1, 0.4, 0.4, 1); }
         @keyframes jump { 
-            0% { bottom: 30%; transform: rotate(0deg); } 
-            50% { bottom: 65%; transform: rotate(180deg); } 
-            100% { bottom: 30%; transform: rotate(360deg); } 
+            0% { bottom: 0; transform: rotate(0deg); } 
+            50% { bottom: 150px; transform: rotate(180deg); } 
+            100% { bottom: 0; transform: rotate(360deg); } 
         }
     </style>
 </head>
-<body onload="atualizarLoja()">
+<body>
 
-    <h1 id="user_display">SISTEMAS JEFFERSON</h1>
-
-    <div id="game_container" class="bg-pro">
+    <div id="game_container">
         <div class="hud">
-            <span>MORTES: <span id="val_mortes">0</span></span>
-            <span>MOEDAS: <span id="val_moedas">0</span></span>
+            <span>💀 <span id="val_mortes">0</span></span>
+            <span class="coin-icon">🟡 <span id="val_moedas">0</span></span>
         </div>
 
-        <div id="menu_inicial">
-            <h3>MENU DO JOGO</h3>
-            <button class="btn-menu" onclick="jogar('Normal')">JOGAR (NORMAL)</button>
-            <button class="btn-menu" onclick="jogar('Dificil')">JOGAR (DIFÍCIL)</button>
-            <hr width="80%">
-            <p>GRÁFICOS:</p>
-            <button class="btn-menu" style="background:#3498db" onclick="mudarGrafico('pro')">MODO PRO (CÉU)</button>
-            <button class="btn-menu" style="background:#555" onclick="mudarGrafico('classic')">MODO CLÁSSICO</button>
-            <hr width="80%">
-            <p>LOJA DE BONECOS (50 moedas):</p>
-            <button id="btn_loja" class="btn-menu" style="background:#9b59b6" onclick="comprarCor()">COMPRAR COR ALEATÓRIA</button>
+        <div id="menu">
+            <h1 style="font-size: 50px; color: #44fb1b;">GEOMETRY DASHER</h1>
+            <button class="btn" onclick="startGame('facil')">NÍVEL FÁCIL</button>
+            <button class="btn" onclick="startGame('dificil')" style="background: #ff4444;">NÍVEL DIFÍCIL</button>
+            <p>Clique ou ESPAÇO para Pular!</p>
         </div>
 
-        <div id="player2" style="background-color: #e74c3c;"></div>
+        <div id="player"></div>
     </div>
 
     <script>
-        let moedas = parseInt(localStorage.getItem('moedas_jefferson')) || 0;
+        const player = document.getElementById("player");
+        const menu = document.getElementById("menu");
+        let moedas = parseInt(localStorage.getItem('moedas_jeff')) || 0;
         let mortes = 0;
-        let corAtual = "#e74c3c";
         let isJumping = false;
-        let isGameOver = false;
-        let gameSpeed = 7;
+        let active = false;
+        let speed = 8;
 
-        // Inicia o Nome
-        const nome = prompt("Seu nome, mestre:") || "Jefferson";
-        document.getElementById("user_display").innerText = "PLAYER: " + nome.toUpperCase();
-
-        function mudarGrafico(tipo) {
-            const container = document.getElementById("game_container");
-            if(tipo === 'pro') {
-                container.className = "bg-pro";
-            } else {
-                container.className = "bg-classic";
-            }
-        }
-
-        function atualizarLoja() {
+        function updateHUD() {
             document.getElementById("val_moedas").innerText = moedas;
             document.getElementById("val_mortes").innerText = mortes;
         }
 
-        function comprarCor() {
-            if (moedas >= 50) {
-                moedas -= 50;
-                localStorage.setItem('moedas_jefferson', moedas);
-                corAtual = '#' + Math.floor(Math.random()*16777215).toString(16);
-                document.getElementById("player2").style.backgroundColor = corAtual;
-                atualizarLoja();
-                alert("Nova cor desbloqueada!");
-            } else {
-                alert("Moedas insuficientes! Ganhe jogando.");
-            }
-        }
-
-        function jogar(nivel) {
-            document.getElementById("menu_inicial").style.display = "none";
-            isGameOver = false;
-            gameSpeed = (nivel === 'Dificil') ? 12 : 7;
-            spawnObstacle();
+        function startGame(nivel) {
+            menu.style.display = "none";
+            active = true;
+            speed = (nivel === 'dificil') ? 14 : 8;
+            updateHUD();
+            spawnObject();
         }
 
         function jump() {
-            if (isJumping || isGameOver) return;
+            if (isJumping || !active) return;
             isJumping = true;
-            document.getElementById("player2").classList.add("jump");
+            player.classList.add("jump-anim");
             setTimeout(() => {
-                document.getElementById("player2").classList.remove("jump");
+                player.classList.remove("jump-anim");
                 isJumping = false;
             }, 600);
         }
 
-        function spawnObstacle() {
-            if (isGameOver) return;
-            const obs = document.createElement("div");
-            obs.classList.add("obstacle");
-            document.getElementById("game_container").appendChild(obs);
+        function spawnObject() {
+            if (!active) return;
+            
+            const isCoin = Math.random() > 0.6;
+            const obj = document.createElement("div");
+            obj.classList.add(isCoin ? "coin" : "obstacle");
+            document.getElementById("game_container").appendChild(obj);
 
-            let pos = 600;
-            let timer = setInterval(() => {
-                if (pos > 50 && pos < 90 && !isJumping) {
-                    morrer();
-                    clearInterval(timer);
-                    obs.remove();
+            let pos = 800;
+            let moveTimer = setInterval(() => {
+                if (!active) { clearInterval(moveTimer); obj.remove(); return; }
+
+                pos -= speed;
+                obj.style.left = pos + "px";
+
+                // Colisão
+                let pRect = player.getBoundingClientRect();
+                let oRect = obj.getBoundingClientRect();
+
+                if (pRect.right > oRect.left && pRect.left < oRect.right && 
+                    pRect.bottom > oRect.top && pRect.top < oRect.bottom) {
+                    
+                    if (isCoin) {
+                        moedas += 1;
+                        localStorage.setItem('moedas_jeff', moedas);
+                        updateHUD();
+                        obj.remove();
+                        clearInterval(moveTimer);
+                    } else {
+                        gameOver();
+                    }
                 }
-                pos -= gameSpeed;
-                obs.style.left = pos + "px";
 
                 if (pos < -50) {
-                    moedas += 5; // Ganha moedas ao desviar
-                    localStorage.setItem('moedas_jefferson', moedas);
-                    atualizarLoja();
-                    clearInterval(timer);
-                    obs.remove();
+                    obj.remove();
+                    clearInterval(moveTimer);
                 }
             }, 20);
 
-            setTimeout(spawnObstacle, Math.random() * 1500 + 800);
+            setTimeout(spawnObject, Math.random() * 1500 + 700);
         }
 
-        function morrer() {
-            isGameOver = true;
+        function gameOver() {
+            active = false;
             mortes++;
-            atualizarLoja();
-            document.getElementById("menu_inicial").style.display = "flex";
-            alert("VOCÊ BATEU!");
+            updateHUD();
+            menu.style.display = "flex";
         }
 
         document.addEventListener("keydown", (e) => { if(e.code === "Space") jump(); });
-        document.addEventListener("mousedown", jump);
+        document.getElementById("game_container").addEventListener("mousedown", jump);
+        updateHUD();
     </script>
 </body>
 </html>
