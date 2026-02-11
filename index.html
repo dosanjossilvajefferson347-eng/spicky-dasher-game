@@ -3,120 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spicky Dasher Pro - Sistemas Jefferson</title>
+    <title>Spicky Dasher Ultra - Sistemas Jefferson</title>
     <style>
-        body { margin: 0; background-color: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { margin: 0; background-color: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        /* O Console com o Céu e a Grama */
-        #game_console { 
-            width: 600px; 
-            height: 300px; 
-            border: 6px solid #333; 
-            background: linear-gradient(#87CEEB 70%, #2ecc71 70%); /* Céu azul e Grama verde */
-            position: relative; 
-            overflow: hidden; 
-            border-radius: 15px;
-        }
-
-        /* O BONECO VERMELHO (Player) */
-        #player2 { 
-            width: 40px; 
-            height: 40px; 
-            background-color: #e74c3c; /* Cor Vermelha */
-            position: absolute; 
-            bottom: 30%; /* Posicionado exatamente sobre a grama */
-            left: 50px; 
-            border-radius: 8px; 
-            border: 3px solid #c0392b;
-            z-index: 100; /* Garante que ele fique na frente de tudo */
-        }
-
-        /* Os Obstáculos */
-        .obstacle { 
-            width: 35px; 
-            height: 35px; 
-            background-color: #333; 
-            position: absolute; 
-            bottom: 30%; 
-            right: -50px; 
-            border-radius: 5px; 
-        }
-
-        #deaths_counter { position: absolute; top: 15px; left: 15px; font-weight: bold; font-size: 1.4rem; color: #333; z-index: 10; }
+        /* Container Principal */
+        #game_container { position: relative; width: 600px; height: 300px; border: 5px solid #333; border-radius: 15px; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         
-        /* Animação do Pulo e Giro */
+        /* Cenários */
+        .bg-pro { background: linear-gradient(#87CEEB 70%, #2ecc71 70%); }
+        .bg-classic { background-color: #e67e22; }
+
+        /* Boneco e Obstáculos */
+        #player2 { width: 40px; height: 40px; position: absolute; bottom: 30%; left: 50px; border-radius: 8px; border: 3px solid rgba(0,0,0,0.2); z-index: 100; transition: background 0.3s; }
+        .obstacle { width: 35px; height: 35px; background-color: #333; position: absolute; bottom: 30%; right: -50px; border-radius: 5px; }
+
+        /* UI de Status */
+        .hud { position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around; font-weight: bold; color: #333; z-index: 101; }
+
+        /* Menu Inicial */
+        #menu_inicial { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn-menu { background: #f39c12; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; width: 200px; }
+        .btn-menu:hover { background: #e67e22; }
+
+        /* Animações */
         .jump { animation: jump 0.6s linear; }
         @keyframes jump { 
             0% { bottom: 30%; transform: rotate(0deg); } 
             50% { bottom: 65%; transform: rotate(180deg); } 
             100% { bottom: 30%; transform: rotate(360deg); } 
         }
-
-        .instrucoes { margin-top: 20px; color: #eee; text-align: center; }
     </style>
 </head>
-<body>
+<body onload="atualizarLoja()">
 
-    <h1>SPICKY DASHER PRO</h1>
-    
-    <div id="game_console">
-        <div id="deaths_counter">DEATHS: 0</div>
-        <div id="player2"></div>
-    </div>
+    <h1 id="user_display">SISTEMAS JEFFERSON</h1>
 
-    <div class="instrucoes">
-        Pressione <b>ESPAÇO</b> ou <b>CLIQUE</b> para pular!
+    <div id="game_container" class="bg-pro">
+        <div class="hud">
+            <span>MORTES: <span id="val_mortes">0</span></span>
+            <span>MOEDAS: <span id="val_moedas">0</span></span>
+        </div>
+
+        <div id="menu_inicial">
+            <h3>MENU DO JOGO</h3>
+            <button class="btn-menu" onclick="jogar('Normal')">JOGAR (NORMAL)</button>
+            <button class="btn-menu" onclick="jogar('Dificil')">JOGAR (DIFÍCIL)</button>
+            <hr width="80%">
+            <p>GRÁFICOS:</p>
+            <button class="btn-menu" style="background:#3498db" onclick="mudarGrafico('pro')">MODO PRO (CÉU)</button>
+            <button class="btn-menu" style="background:#555" onclick="mudarGrafico('classic')">MODO CLÁSSICO</button>
+            <hr width="80%">
+            <p>LOJA DE BONECOS (50 moedas):</p>
+            <button id="btn_loja" class="btn-menu" style="background:#9b59b6" onclick="comprarCor()">COMPRAR COR ALEATÓRIA</button>
+        </div>
+
+        <div id="player2" style="background-color: #e74c3c;"></div>
     </div>
 
     <script>
-        const player = document.getElementById("player2");
-        const gameConsole = document.getElementById("game_console");
-        const deathLabel = document.getElementById("deaths_counter");
-        
-        let deaths = 0;
+        let moedas = parseInt(localStorage.getItem('moedas_jefferson')) || 0;
+        let mortes = 0;
+        let corAtual = "#e74c3c";
         let isJumping = false;
+        let isGameOver = false;
+        let gameSpeed = 7;
+
+        // Inicia o Nome
+        const nome = prompt("Seu nome, mestre:") || "Jefferson";
+        document.getElementById("user_display").innerText = "PLAYER: " + nome.toUpperCase();
+
+        function mudarGrafico(tipo) {
+            const container = document.getElementById("game_container");
+            if(tipo === 'pro') {
+                container.className = "bg-pro";
+            } else {
+                container.className = "bg-classic";
+            }
+        }
+
+        function atualizarLoja() {
+            document.getElementById("val_moedas").innerText = moedas;
+            document.getElementById("val_mortes").innerText = mortes;
+        }
+
+        function comprarCor() {
+            if (moedas >= 50) {
+                moedas -= 50;
+                localStorage.setItem('moedas_jefferson', moedas);
+                corAtual = '#' + Math.floor(Math.random()*16777215).toString(16);
+                document.getElementById("player2").style.backgroundColor = corAtual;
+                atualizarLoja();
+                alert("Nova cor desbloqueada!");
+            } else {
+                alert("Moedas insuficientes! Ganhe jogando.");
+            }
+        }
+
+        function jogar(nivel) {
+            document.getElementById("menu_inicial").style.display = "none";
+            isGameOver = false;
+            gameSpeed = (nivel === 'Dificil') ? 12 : 7;
+            spawnObstacle();
+        }
 
         function jump() {
-            if (isJumping) return;
+            if (isJumping || isGameOver) return;
             isJumping = true;
-            player.classList.add("jump");
+            document.getElementById("player2").classList.add("jump");
             setTimeout(() => {
-                player.classList.remove("jump");
+                document.getElementById("player2").classList.remove("jump");
                 isJumping = false;
             }, 600);
         }
 
-        function createObstacle() {
-            const obstacle = document.createElement("div");
-            obstacle.classList.add("obstacle");
-            gameConsole.appendChild(obstacle);
+        function spawnObstacle() {
+            if (isGameOver) return;
+            const obs = document.createElement("div");
+            obs.classList.add("obstacle");
+            document.getElementById("game_container").appendChild(obs);
 
-            let obstaclePos = 600;
+            let pos = 600;
             let timer = setInterval(() => {
-                // Checa colisão com o boneco
-                if (obstaclePos > 50 && obstaclePos < 90 && !isJumping) {
-                    deaths++;
-                    deathLabel.innerText = "DEATHS: " + deaths;
-                    obstacle.remove();
+                if (pos > 50 && pos < 90 && !isJumping) {
+                    morrer();
                     clearInterval(timer);
+                    obs.remove();
                 }
+                pos -= gameSpeed;
+                obs.style.left = pos + "px";
 
-                obstaclePos -= 7;
-                obstacle.style.left = obstaclePos + "px";
-
-                if (obstaclePos < -50) {
-                    obstacle.remove();
+                if (pos < -50) {
+                    moedas += 5; // Ganha moedas ao desviar
+                    localStorage.setItem('moedas_jefferson', moedas);
+                    atualizarLoja();
                     clearInterval(timer);
+                    obs.remove();
                 }
             }, 20);
 
-            setTimeout(createObstacle, Math.random() * 2000 + 1000);
+            setTimeout(spawnObstacle, Math.random() * 1500 + 800);
         }
 
-        document.addEventListener("keydown", (e) => { if (e.code === "Space") jump(); });
-        document.addEventListener("mousedown", jump);
+        function morrer() {
+            isGameOver = true;
+            mortes++;
+            atualizarLoja();
+            document.getElementById("menu_inicial").style.display = "flex";
+            alert("VOCÊ BATEU!");
+        }
 
-        createObstacle();
+        document.addEventListener("keydown", (e) => { if(e.code === "Space") jump(); });
+        document.addEventListener("mousedown", jump);
     </script>
 </body>
 </html>
