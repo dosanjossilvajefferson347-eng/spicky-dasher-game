@@ -7,33 +7,36 @@
     <style>
         body { margin: 0; background-color: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: 'Arial Black', sans-serif; overflow: hidden; }
         
-        /* Container Roxo com Grade (Baseado na sua imagem) */
+        /* Fundo Roxo com Grade (Fiel à sua imagem) */
         #game_container { 
             position: relative; width: 800px; height: 400px; background: #2e0094; 
             background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
             background-size: 50px 50px; border-bottom: 10px solid #1a0052; overflow: hidden;
         }
 
-        /* Boneco Customizável */
+        /* Boneco Verde Limão */
         #player { 
             width: 40px; height: 40px; background-color: #44fb1b; border: 3px solid #fff; 
             position: absolute; bottom: 0; left: 100px; z-index: 1000; box-shadow: 0 0 15px currentColor;
         }
 
-        /* Moedas e Obstáculos */
         .obstacle { width: 40px; height: 40px; background: linear-gradient(#000, #2e0094); border: 2px solid #fff; position: absolute; bottom: 0; right: -50px; }
         .coin { width: 30px; height: 30px; background: #ffcc00; border: 3px solid #ff9900; border-radius: 50%; position: absolute; bottom: 120px; right: -50px; box-shadow: 0 0 10px #ffcc00; }
 
-        /* HUD e Menus */
-        .hud { position: absolute; top: 15px; left: 20px; font-size: 20px; z-index: 1001; display: flex; gap: 30px; text-shadow: 2px 2px #000; }
+        /* UI e Menus (Baseado na imagem enviada) */
+        .hud { position: absolute; top: 15px; left: 20px; font-size: 20px; z-index: 1001; display: flex; gap: 30px; }
+        
         #menu_principal, #menu_loja, #menu_idioma { 
             position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; 
         }
         
-        .btn { background: #44fb1b; color: #000; padding: 12px 30px; margin: 8px; border: none; font-size: 18px; cursor: pointer; border-radius: 5px; min-width: 250px; }
-        .btn-loja { background: #ffcc00; }
-        .btn-idioma { background: #3498db; color: white; }
+        /* Botões Estilizados */
+        .btn { border: none; padding: 15px; margin: 8px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 300px; text-transform: uppercase; }
+        .btn-facil { background: #44fb1b; color: #000; }
+        .btn-dificil { background: #ff4444; color: #fff; }
+        .btn-loja { background: #ffcc00; color: #000; }
+        .btn-idioma { background: #3498db; color: #fff; }
 
         .jump-anim { animation: jump 0.6s linear; }
         @keyframes jump { 
@@ -52,30 +55,31 @@
         </div>
 
         <div id="menu_principal">
-            <h1 id="tit_jogo" style="color: #44fb1b; font-size: 40px;">GEOMETRY DASHER</h1>
-            <button class="btn" onclick="iniciar('facil')" id="btn_facil">NÍVEL FÁCIL</button>
-            <button class="btn" onclick="iniciar('dificil')" id="btn_dificil" style="background:#ff4444">NÍVEL DIFÍCIL</button>
-            <button class="btn btn-loja" onclick="abrirLoja()" id="btn_loja">LOJA DE BONECOS</button>
-            <button class="btn btn-idioma" onclick="abrirIdioma()">IDIOMA / LANGUAGE</button>
+            <h1 id="tit_jogo" style="color: #44fb1b; font-size: 45px; margin-bottom: 20px;">GEOMETRY DASHER</h1>
+            <button class="btn btn-facil" onclick="iniciarJogo('facil')" id="btn_facil">NÍVEL FÁCIL</button>
+            <button class="btn btn-dificil" onclick="iniciarJogo('dificil')" id="btn_dificil">NÍVEL DIFÍCIL</button>
+            <button class="btn btn-loja" onclick="abrirMenu('menu_loja')" id="btn_loja">LOJA DE BONECOS</button>
+            <button class="btn btn-idioma" onclick="abrirMenu('menu_idioma')" id="btn_idioma">IDIOMA / LANGUAGE</button>
         </div>
 
         <div id="menu_loja" style="display:none">
-            <h2 id="tit_loja">LOJA (50 MOEDAS)</h2>
-            <div style="display:flex; gap:10px; margin-bottom:20px">
-                <div style="width:40px;height:40px;background:#44fb1b;border:2px solid #fff" onclick="trocarCor('#44fb1b')"></div>
-                <div style="width:40px;height:40px;background:#ff4444;border:2px solid #fff" onclick="trocarCor('#ff4444')"></div>
-                <div style="width:40px;height:40px;background:#3498db;border:2px solid #fff" onclick="trocarCor('#3498db')"></div>
-                <div style="width:40px;height:40px;background:#f1c40f;border:2px solid #fff" onclick="trocarCor('#f1c40f')"></div>
+            <h2 id="tit_loja">SKINS (50 MOEDAS)</h2>
+            <p id="sub_loja">Clique abaixo para mudar a cor:</p>
+            <div style="display:flex; gap:15px; margin-bottom:30px">
+                <div style="width:50px;height:50px;background:#44fb1b;border:3px solid #fff;cursor:pointer" onclick="mudarCor('#44fb1b')"></div>
+                <div style="width:50px;height:50px;background:#ff4444;border:3px solid #fff;cursor:pointer" onclick="mudarCor('#ff4444')"></div>
+                <div style="width:50px;height:50px;background:#3498db;border:3px solid #fff;cursor:pointer" onclick="mudarCor('#3498db')"></div>
+                <div style="width:50px;height:50px;background:#9b59b6;border:3px solid #fff;cursor:pointer" onclick="mudarCor('#9b59b6')"></div>
             </div>
-            <button class="btn" onclick="comprarSkin()" id="btn_comprar">COMPRAR COR NOVA</button>
-            <button class="btn" onclick="fecharMenus()" id="btn_voltar">VOLTAR</button>
+            <button class="btn btn-facil" onclick="abrirMenu('menu_principal')">VOLTAR</button>
         </div>
 
         <div id="menu_idioma" style="display:none">
-            <button class="btn" onclick="setIdioma('pt')">Português 🇧🇷</button>
-            <button class="btn" onclick="setIdioma('en')">English 🇺🇸</button>
-            <button class="btn" onclick="setIdioma('es')">Español 🇪🇸</button>
-            <button class="btn" onclick="setIdioma('fr')">Français 🇫🇷</button>
+            <button class="btn" style="background:#3498db" onclick="setIdioma('pt')">Português 🇧🇷</button>
+            <button class="btn" style="background:#3498db" onclick="setIdioma('en')">English 🇺🇸</button>
+            <button class="btn" style="background:#3498db" onclick="setIdioma('es')">Español 🇪🇸</button>
+            <button class="btn" style="background:#3498db" onclick="setIdioma('fr')">Français 🇫🇷</button>
+            <button class="btn" style="background:#555" onclick="abrirMenu('menu_principal')">VOLTAR</button>
         </div>
 
         <div id="player"></div>
@@ -86,85 +90,15 @@
         let moedas = parseInt(localStorage.getItem('moedas_jeff')) || 0;
         let mortes = 0;
         let isJumping = false;
-        let active = false;
-        let speed = 8;
+        let gameActive = false;
+        let gameSpeed = 8;
 
-        const textos = {
-            pt: {facil: "NÍVEL FÁCIL", dificil: "NÍVEL DIFÍCIL", loja: "LOJA", voltar: "VOLTAR", comprar: "COMPRAR COR NOVA", morto: "VOCÊ MORREU!"},
-            en: {facil: "EASY LEVEL", dificil: "HARD LEVEL", loja: "SHOP", voltar: "BACK", comprar: "BUY NEW COLOR", morto: "YOU DIED!"},
-            es: {facil: "NIVEL FÁCIL", dificil: "NIVEL DIFÍCIL", loja: "TIENDA", voltar: "VOLVER", comprar: "COMPRAR COLOR", morto: "¡HAS MUERTO!"},
-            fr: {facil: "NIVEAU FACILE", dificil: "NIVEAU DIFFICILE", loja: "BOUTIQUE", voltar: "RETOUR", comprar: "ACHETER COULEUR", morto: "TU ES MORT!"}
+        const langData = {
+            pt: {f: "NÍVEL FÁCIL", d: "NÍVEL DIFÍCIL", l: "LOJA DE BONECOS", i: "IDIOMA / LANGUAGE"},
+            en: {f: "EASY LEVEL", d: "HARD LEVEL", l: "SKIN SHOP", i: "LANGUAGE"},
+            es: {f: "NIVEL FÁCIL", d: "NIVEL DIFÍCIL", l: "TIENDA", i: "IDIOMA"},
+            fr: {f: "NIVEAU FACILE", d: "NIVEAU DIFFICILE", l: "BOUTIQUE", i: "LANGUE"}
         };
 
-        function setIdioma(lang) {
-            document.getElementById("btn_facil").innerText = textos[lang].facil;
-            document.getElementById("btn_dificil").innerText = textos[lang].dificil;
-            document.getElementById("btn_loja").innerText = textos[lang].loja;
-            document.getElementById("btn_voltar").innerText = textos[lang].voltar;
-            document.getElementById("btn_comprar").innerText = textos[lang].comprar;
-            fecharMenus();
-        }
-
-        function abrirLoja() { fecharMenus(); document.getElementById("menu_loja").style.display = "flex"; }
-        function abrirIdioma() { fecharMenus(); document.getElementById("menu_idioma").style.display = "flex"; }
-        function fecharMenus() { 
-            document.getElementById("menu_principal").style.display = "none";
-            document.getElementById("menu_loja").style.display = "none";
-            document.getElementById("menu_idioma").style.display = "none";
-            if(!active) document.getElementById("menu_principal").style.display = "flex";
-        }
-
-        function trocarCor(cor) { player.style.backgroundColor = cor; }
-
-        function comprarSkin() {
-            if(moedas >= 50) {
-                moedas -= 50;
-                localStorage.setItem('moedas_jeff', moedas);
-                trocarCor('#' + Math.floor(Math.random()*16777215).toString(16));
-                updateHUD();
-                alert("Nova cor desbloqueada!");
-            } else { alert("Moedas insuficientes!"); }
-        }
-
-        function iniciar(nivel) {
-            active = true;
-            fecharMenus();
-            speed = (nivel === 'dificil') ? 14 : 8;
-            updateHUD();
-            spawn();
-        }
-
-        function jump() {
-            if (isJumping || !active) return;
-            isJumping = true;
-            player.classList.add("jump-anim");
-            setTimeout(() => { player.classList.remove("jump-anim"); isJumping = false; }, 600);
-        }
-
-        function spawn() {
-            if (!active) return;
-            const isCoin = Math.random() > 0.7;
-            const obj = document.createElement("div");
-            obj.className = isCoin ? "coin" : "obstacle";
-            document.getElementById("game_container").appendChild(obj);
-
-            let pos = 800;
-            let timer = setInterval(() => {
-                pos -= speed;
-                obj.style.left = pos + "px";
-                let p = player.getBoundingClientRect();
-                let o = obj.getBoundingClientRect();
-
-                if (p.right > o.left && p.left < o.right && p.bottom > o.top && p.top < o.bottom) {
-                    if (isCoin) { 
-                        moedas++; localStorage.setItem('moedas_jeff', moedas); 
-                        updateHUD(); obj.remove(); clearInterval(timer);
-                    } else { 
-                        active = false; mortes++; updateHUD(); 
-                        document.getElementById("menu_principal").style.display = "flex";
-                        clearInterval(timer); obj.remove();
-                    }
-                }
-                if (pos < -50) { clearInterval(timer); obj.remove(); }
-            }, 20);
-            setTimeout(spawn, Math.random() * 1500 + 80
+        function setIdioma(l) {
+            document.getElementById("btn_facil").innerText = lang
