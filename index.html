@@ -1,11 +1,107 @@
-# Cria a pasta do projeto
-mkdir spicky-dasher; cd spicky-dasher
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spicky Dasher - Sistemas Jefferson</title>
+    <style>
+        /* Estilo do Jogo (CSS) */
+        body { margin: 0; background-color: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; color: white; font-family: Arial, sans-serif; }
+        #game_console { width: 600px; height: 300px; border: 4px solid #f39c12; background-color: #e67e22; position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        #player2 { width: 40px; height: 40px; background-color: #e74c3c; position: absolute; bottom: 0; left: 50px; border-radius: 5px; border: 2px solid #c0392b; }
+        .obstacle { width: 30px; height: 30px; background-color: #2c3e50; position: absolute; bottom: 0; right: -50px; border-radius: 3px; }
+        #deaths_counter { position: absolute; top: 10px; left: 10px; font-weight: bold; }
+        #game_alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: bold; display: none; text-shadow: 2px 2px #000; }
+        .instrucoes { margin-top: 20px; color: #aaa; }
+        .jump { animation: jump 0.5s linear; }
+        @keyframes jump { 0% { bottom: 0; } 30% { bottom: 100px; } 70% { bottom: 100px; } 100% { bottom: 0; } }
+    </style>
+</head>
+<body>
 
-# Cria o arquivo HTML básico como o da imagem
-echo "<html><body><div id='game_console'><div id='player2'></div></div><script src='script.js'></script></body></html>" > index.html
+    <h1>SPICKY DASHER</h1>
+    
+    <div id="game_console">
+        <div id="deaths_counter">DEATHS: 0</div>
+        <div id="game_alert">GAME OVER!</div>
+        <div id="player2"></div>
+    </div>
 
-# Cria os arquivos de estilo e lógica vazios para você preencher
-echo "/* Estilos CSS aqui */" > style.css
-echo "// Lógica do jogo aqui" > script.js
+    <div class="instrucoes">
+        Pressione <b>ESPAÇO</b> ou <b>CLIQUE</b> para pular!
+    </div>
 
-Write-Host "Pasta e arquivos criados com sucesso!" -ForegroundColor Green
+    <script>
+        // Lógica do Jogo (JS)
+        const player = document.getElementById("player2");
+        const gameConsole = document.getElementById("game_console");
+        const deathLabel = document.getElementById("deaths_counter");
+        const alertLabel = document.getElementById("game_alert");
+        
+        let deaths = 0;
+        let isJumping = false;
+        let isGameOver = false;
+
+        // Função de Pular
+        function jump() {
+            if (isJumping || isGameOver) return;
+            isJumping = true;
+            player.classList.add("jump");
+            setTimeout(() => {
+                player.classList.remove("jump");
+                isJumping = false;
+            }, 500);
+        }
+
+        // Criar Obstáculos
+        function createObstacle() {
+            if (isGameOver) return;
+            
+            const obstacle = document.createElement("div");
+            obstacle.classList.add("obstacle");
+            gameConsole.appendChild(obstacle);
+
+            let obstaclePos = 600;
+            
+            let timer = setInterval(() => {
+                // Colisão
+                if (obstaclePos > 50 && obstaclePos < 90 && !isJumping) {
+                    gameOver();
+                    clearInterval(timer);
+                }
+
+                obstaclePos -= 5;
+                obstacle.style.left = obstaclePos + "px";
+
+                if (obstaclePos < -50) {
+                    clearInterval(timer);
+                    obstacle.remove();
+                }
+            }, 20);
+
+            // Gera próximo obstáculo em tempo aleatório
+            let nextSpawn = Math.random() * (2000 - 700) + 700;
+            setTimeout(createObstacle, nextSpawn);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            deaths++;
+            deathLabel.innerText = "DEATHS: " + deaths;
+            alertLabel.style.display = "block";
+            
+            setTimeout(() => {
+                alertLabel.style.display = "none";
+                isGameOver = false;
+            }, 1000);
+        }
+
+        // Controles
+        document.addEventListener("keydown", (e) => { if (e.code === "Space") jump(); });
+        document.addEventListener("mousedown", jump);
+
+        // Iniciar
+        createObstacle();
+    </script>
+</body>
+</html>
