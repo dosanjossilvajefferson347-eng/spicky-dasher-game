@@ -3,105 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spicky Dasher - Sistemas Jefferson</title>
+    <title>Spicky Dasher Pro - Sistemas Jefferson</title>
     <style>
-        /* Estilo do Jogo (CSS) */
-        body { margin: 0; background-color: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; color: white; font-family: Arial, sans-serif; }
-        #game_console { width: 600px; height: 300px; border: 4px solid #f39c12; background-color: #e67e22; position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        #player2 { width: 40px; height: 40px; background-color: #e74c3c; position: absolute; bottom: 0; left: 50px; border-radius: 5px; border: 2px solid #c0392b; }
-        .obstacle { width: 30px; height: 30px; background-color: #2c3e50; position: absolute; bottom: 0; right: -50px; border-radius: 3px; }
-        #deaths_counter { position: absolute; top: 10px; left: 10px; font-weight: bold; }
-        #game_alert { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: bold; display: none; text-shadow: 2px 2px #000; }
-        .instrucoes { margin-top: 20px; color: #aaa; }
-        .jump { animation: jump 0.5s linear; }
-        @keyframes jump { 0% { bottom: 0; } 30% { bottom: 100px; } 70% { bottom: 100px; } 100% { bottom: 0; } }
+        body { margin: 0; background-color: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        /* Console com cenário */
+        #game_console { 
+            width: 600px; 
+            height: 300px; 
+            border: 6px solid #333; 
+            background: linear-gradient(#87CEEB 70%, #2ecc71 70%); /* Céu e Grama */
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* Nuvens decorativas */
+        .cloud { position: absolute; background: white; width: 60px; height: 20px; border-radius: 20px; opacity: 0.8; animation: moveClouds 20s linear infinite; }
+        @keyframes moveClouds { from { left: 650px; } to { left: -100px; } }
+
+        /* Jogador melhorado */
+        #player2 { 
+            width: 45px; 
+            height: 45px; 
+            background-color: #e74c3c; 
+            position: absolute; 
+            bottom: 30%; /* Fica em cima da grama */
+            left: 50px; 
+            border-radius: 8px; 
+            border: 3px solid #c0392b;
+            box-sizing: border-box;
+            transition: transform 0.1s;
+        }
+
+        /* Obstáculo perigoso */
+        .obstacle { 
+            width: 35px; 
+            height: 35px; 
+            background-color: #333; 
+            position: absolute; 
+            bottom: 30%; 
+            right: -50px; 
+            border-radius: 5px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        #deaths_counter { position: absolute; top: 15px; left: 15px; font-weight: bold; font-size: 1.4rem; color: #333; z-index: 10; }
+        #game_alert { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            font-size: 3rem; font-weight: bold; display: none; color: #c0392b; z-index: 20;
+        }
+
+        .jump { animation: jump 0.6s cubic-bezier(0.1, 0.4, 0.4, 1); }
+        @keyframes jump { 
+            0% { bottom: 30%; transform: rotate(0deg); } 
+            50% { bottom: 65%; transform: rotate(180deg); } 
+            100% { bottom: 30%; transform: rotate(360deg); } 
+        }
+
+        .instrucoes { margin-top: 20px; color: #eee; text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 30px; }
     </style>
 </head>
 <body>
 
-    <h1>SPICKY DASHER</h1>
+    <h1 id="title-game">SPICKY DASHER PRO</h1>
     
     <div id="game_console">
         <div id="deaths_counter">DEATHS: 0</div>
-        <div id="game_alert">GAME OVER!</div>
-        <div id="player2"></div>
-    </div>
-
-    <div class="instrucoes">
-        Pressione <b>ESPAÇO</b> ou <b>CLIQUE</b> para pular!
-    </div>
-
-    <script>
-        // Lógica do Jogo (JS)
-        const player = document.getElementById("player2");
-        const gameConsole = document.getElementById("game_console");
-        const deathLabel = document.getElementById("deaths_counter");
-        const alertLabel = document.getElementById("game_alert");
+        <div id="game_alert">OPS! 💥</div>
         
-        let deaths = 0;
-        let isJumping = false;
-        let isGameOver = false;
-
-        // Função de Pular
-        function jump() {
-            if (isJumping || isGameOver) return;
-            isJumping = true;
-            player.classList.add("jump");
-            setTimeout(() => {
-                player.classList.remove("jump");
-                isJumping = false;
-            }, 500);
-        }
-
-        // Criar Obstáculos
-        function createObstacle() {
-            if (isGameOver) return;
-            
-            const obstacle = document.createElement("div");
-            obstacle.classList.add("obstacle");
-            gameConsole.appendChild(obstacle);
-
-            let obstaclePos = 600;
-            
-            let timer = setInterval(() => {
-                // Colisão
-                if (obstaclePos > 50 && obstaclePos < 90 && !isJumping) {
-                    gameOver();
-                    clearInterval(timer);
-                }
-
-                obstaclePos -= 5;
-                obstacle.style.left = obstaclePos + "px";
-
-                if (obstaclePos < -50) {
-                    clearInterval(timer);
-                    obstacle.remove();
-                }
-            }, 20);
-
-            // Gera próximo obstáculo em tempo aleatório
-            let nextSpawn = Math.random() * (2000 - 700) + 700;
-            setTimeout(createObstacle, nextSpawn);
-        }
-
-        function gameOver() {
-            isGameOver = true;
-            deaths++;
-            deathLabel.innerText = "DEATHS: " + deaths;
-            alertLabel.style.display = "block";
-            
-            setTimeout(() => {
-                alertLabel.style.display = "none";
-                isGameOver = false;
-            }, 1000);
-        }
-
-        // Controles
-        document.addEventListener("keydown", (e) => { if (e.code === "Space") jump(); });
-        document.addEventListener("mousedown", jump);
-
-        // Iniciar
-        createObstacle();
-    </script>
-</body>
-</html>
+        <div class="cloud" style="top: 20px; animation-delay: 0s;"></div>
+        <div
